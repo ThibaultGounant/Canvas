@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link href='https://fonts.googleapis.com/css?family=Varela Round' rel='stylesheet'>
+        <title>Canvas</title>
+    </head>
+
+    <body
+        style="
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: orange;
+        ">
+        
+        <canvas id="canvas" style="width: 100%; height: 100%; position: absolute; filter: blur(1px)"></canvas>
+
+        <p
+            style="
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -40%);
+            color: white;
+            font-family: 'Varela Round';
+            font-size: 2vw;
+            text-align: center;
+            ">
+            Lorem ipsum dolor sit amet,<br>
+            consectetur adipiscing elit,<br>
+            sed do eiusmod tempor incididunt<br>
+            ut labore et dolore magna aliqua.
+        </p>
+
+        <script>
+            // initialization canvas
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+
+            // background takes the whole page
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // initialization (class) object for circles
+            function Ball()
+            {
+                // coordinates
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                // size
+                this.radius = 0.2 + Math.random() * 2;
+                // motion
+                this.speedx =  Math.random() * -2 + Math.random() * 2;
+                this.speedy =  Math.random() * -2 + Math.random() * 2;
+            }
+
+            function distance(a, b)
+            {
+                // calculates the distance between two balls
+                return Math.sqrt(Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2));
+            }
+
+            // creates reasonable amount of balls
+            let balls = new Array(Math.floor(canvas.width * canvas.height / 200 / 100));
+            
+            for (let i = 0; i < balls.length; i++)
+            {
+                // initialization array
+                balls[i] = new Ball();
+            }
+
+            animate();
+
+            function draw()
+            {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < balls.length; i++)
+                {
+                    // opacity 1 = show
+                    context.globalAlpha = 1;
+                    // draw the balls
+                    context.beginPath();
+                    context.arc(balls[i].x, balls[i].y, balls[i].radius, 0, 2 * Math.PI, false);
+                    context.closePath();
+                    // color
+                    context.fillStyle = "#e1e1e1";
+                    context.fill();
+
+                    for (let j = i + 1; j < balls.length; j++)
+                    {
+                        if (distance(balls[i], balls[j]) > 200)
+                        {
+                            // opacity 0 = hidden
+                            context.globalAlpha = 0;
+                        }
+                        else
+                        {
+                            // increases opacity with decreasing distance
+                            context.globalAlpha = 50 / distance(balls[i], balls[j]);
+                        }
+                        // draw the line between two balls
+                        context.beginPath();
+                        context.moveTo(balls[i].x, balls[i].y);
+                        context.lineTo(balls[j].x, balls[j].y);
+                        context.closePath();
+                        // color
+                        context.lineWidth = 2;
+                        context.strokeStyle = "#e1e1e1";
+                        context.stroke();
+                    }
+                }
+
+                
+            }
+
+            function update()
+            {
+                for (let i = 0; i < balls.length; i++)
+                {
+                    // bounce balls at left and right
+                    if (balls[i].x + balls[i].radius > canvas.width || balls[i].x + balls[i].radius < 0)
+                    {
+                        balls[i].speedx = -balls[i].speedx; 
+                    }
+                    // bounce balls at top and bottom
+                    if (balls[i].y + balls[i].radius > canvas.height || balls[i].y + balls[i].radius < 0)
+                    {
+                        balls[i].speedy = -balls[i].speedy; 
+                    }
+                    // moves the balls
+                    balls[i].x = balls[i].x + balls[i].speedx;
+                    balls[i].y = balls[i].y + balls[i].speedy;
+                }
+
+            }
+
+            function animate()
+            {
+                // draw the balls and lines
+                draw();
+                // moves the balls
+                update();
+                // repeats as a loop
+                requestAnimationFrame(animate);
+            }
+
+        </script>
+    </body>
+</html>
